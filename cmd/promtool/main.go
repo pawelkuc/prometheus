@@ -60,6 +60,8 @@ import (
 	"github.com/prometheus/prometheus/promql/promqltest"
 	"github.com/prometheus/prometheus/scrape"
 	"github.com/prometheus/prometheus/util/documentcli"
+
+	"github.com/prometheus/prometheus/cmd/promtool/unittest"
 )
 
 const (
@@ -206,10 +208,11 @@ func main() {
 	testCmd := app.Command("test", "Unit testing.")
 	testRulesCmd := testCmd.Command("rules", "Unit tests for rules.")
 	testRulesRun := testRulesCmd.Flag("run", "If set, will only run test groups whose names match the regular expression. Can be specified multiple times.").Strings()
-	testRulesFiles := testRulesCmd.Arg(
-		"test-rule-file",
-		"The unit test file.",
-	).Required().ExistingFiles()
+	// TODO: temporary remove
+	// testRulesFiles := testRulesCmd.Arg(
+	// 	"test-rule-file",
+	// 	"The unit test file.",
+	// ).Required().ExistingFiles()
 	testRulesDiff := testRulesCmd.Flag("diff", "[Experimental] Print colored differential output between expected & received output.").Default("false").Bool()
 
 	defaultDBPath := "data/"
@@ -378,14 +381,16 @@ func main() {
 		os.Exit(QueryLabels(serverURL, httpRoundTripper, *queryLabelsMatch, *queryLabelsName, *queryLabelsBegin, *queryLabelsEnd, p))
 
 	case testRulesCmd.FullCommand():
-		os.Exit(RulesUnitTest(
+		os.Exit(unittest.RulesUnitTest(
 			promqltest.LazyLoaderOpts{
 				EnableAtModifier:     true,
 				EnableNegativeOffset: true,
 			},
 			*testRulesRun,
 			*testRulesDiff,
-			*testRulesFiles...),
+		// TODO: temporary remove
+		// *testRulesFiles...
+		),
 		)
 
 	case tsdbBenchWriteCmd.FullCommand():
